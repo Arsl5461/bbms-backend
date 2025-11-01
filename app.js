@@ -4,7 +4,7 @@ dotenv.config();
 
 import path from "path";
 import express from "express";
-import setupCloudinary from './config/cloudinary.js';
+import './config/cloudinary.js'; // Cloudinary is configured on import
 import { connectDB } from "./Utills/mongooseConn.js";
 import routes from "./Routes/routes.js";
 
@@ -12,23 +12,14 @@ const app = express();
 import cors from "cors";
 
 // Middleware
-// app.use(cors({
-//   origin: ['http://localhost:5173', 'https://bmsc.vercel.app/login','https://bmsc.vercel.app/',process.env.FRONTEND_URL],
-//   credentials: true,
-//   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-//   allowedHeaders: ['Content-Type', 'Authorization']
-// }));
-
 app.use(cors({
-  origin: "*", // Allow all origins
+  origin: ['http://localhost:5173', 'http://localhost:5174'],
+  credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json());
-
-// Setup Cloudinary
-setupCloudinary();
 
 // Add request logging
 app.use((req, res, next) => {

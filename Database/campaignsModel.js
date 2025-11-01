@@ -3,10 +3,11 @@ import mongoose from "mongoose";
 
 const campaignSchema = new mongoose.Schema(
   {
+    // Explicitly define the fields we want
     name: {
       type: String,
       required: true,
-      unique: true // still unique for campaign name
+      unique: true
     },
     clientName: {
       type: String,
@@ -19,7 +20,8 @@ const campaignSchema = new mongoose.Schema(
     },
     serviceManEmail: {
       type: [String],
-      required: false
+      required: false,
+      default: []
     },
     city: {
       type: String,
@@ -46,15 +48,15 @@ const campaignSchema = new mongoose.Schema(
       ],
       validate: {
         validator: function(v) {
-          return v && v.length > 0;
+          return Array.isArray(v) && v.length > 0;
         },
         message: "At least one board must be selected"
       }
     },
     price: {
       type: Number,
-      required: true,
-      min: [0, "Price must be a positive number"]
+      default: 0,
+      min: [0, "Price cannot be negative"]
     }
   },
   { timestamps: true }

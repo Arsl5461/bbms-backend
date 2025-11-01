@@ -27,6 +27,12 @@ import {
 } from '../Controllers/addCampaignController.js';
 
 import {
+  uploadCampaignImage,
+  getCampaignImages,
+  deleteCampaignImage
+} from '../Controllers/adminUploadController.js';
+
+import {
   deleteUpload,
   getCampaignsByServiceMan,
   getUploads,
@@ -89,6 +95,14 @@ router.get("/verifications/client-campaigns/:email", verifyToken, getVerifiedCam
 // =============================
 // ✅ Verification Routes
 // =============================
+
+// ============================
+// ✅ Admin Upload Routes
+// ============================
+router.post("/admin/upload-image", verifyToken, uploadMiddleware, uploadCampaignImage);
+router.get("/admin/campaign-images/:campaignId", verifyToken, getCampaignImages);
+router.delete("/admin/campaign-images/:imageId", verifyToken, deleteCampaignImage);
+
 router.put('/admin/verify-upload/:uploadId', verifyToken, adminVerifyUploadById);
 router.get("/admin-get-uploads", verifyToken, adminGetAllUploads);
 router.get("/admin-get-uploads/serviceman/:email", verifyToken, adminGetUploadsByServicemanEmail);

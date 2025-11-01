@@ -4,32 +4,139 @@ import Board from "../Database/boardsModel.js";
 import mongoose from "mongoose";
 import UserModel from "../Database/userModel.js";
 
-// ✅ Create Campaign
+// // ✅ Create Campaign
+// export const createCampaign = async (req, res) => {
+//   try {
+//     console.log("Creating campaign with data:", req.body);
+//     console.log("Request body type:", typeof req.body);
+//     console.log("Full request body:", JSON.stringify(req.body, null, 2));
+    
+//     // Validate selectedBoards are valid ObjectIds
+//     if (req.body.selectedBoards && Array.isArray(req.body.selectedBoards)) {
+//       for (const boardId of req.body.selectedBoards) {
+//         if (!mongoose.Types.ObjectId.isValid(boardId)) {
+//           return res.status(400).json({ 
+//             message: `Invalid board ID: ${boardId}` 
+//           });
+//         }
+//       }
+//     }
+    
+//     if (req.body.serviceManEmail && !Array.isArray(req.body.serviceManEmail)) {
+//       req.body.serviceManEmail = [req.body.serviceManEmail];
+//     }
+
+//     // Extract only the fields we need from req.body
+//     const campaignData = {
+//       name: req.body.name,
+//       startDate: req.body.startDate,
+//       endDate: req.body.endDate,
+//       noOfBoards: req.body.noOfBoards,
+//       selectedBoards: req.body.selectedBoards,
+//       clientEmail: req.body.clientEmail,
+//       clientName: req.body.clientName,
+//       serviceManEmail: req.body.serviceManEmail,
+//       city: req.body.city
+//     };
+
+//     const campaign = new Campaign(campaignData);
+//     console.log("Campaign object created:", campaign);
+    
+//     await campaign.save();
+//     console.log("Campaign saved successfully");
+    
+//     await campaign.populate("selectedBoards");
+//     console.log("Campaign populated with boards");
+
+//     res.status(201).json(campaign);
+//   } catch (error) {
+//     console.error("Campaign creation error:", error);
+//     console.error("Error name:", error.name);
+//     console.error("Error message:", error.message);
+//     console.error("Error stack:", error.stack);
+    
+//     // Handle Mongoose validation errors
+//     if (error.name === "ValidationError") {
+//       console.log("Validation Error Details:", error);
+//       console.log("Error fields:", Object.keys(error.errors));
+//       const messages = Object.values(error.errors).map((err) => err.message);
+//       return res.status(400).json({ 
+//         message: messages.join(", "),
+//         fields: Object.keys(error.errors),
+//         details: error.errors
+//       });
+//     }
+
+//     // Handle duplicate key errors
+//     if (error.code === 11000) {
+//       const field = Object.keys(error.keyPattern)[0];
+//       return res.status(400).json({ message: `${field} already exists` });
+//     }
+
+//     // Handle cast errors (invalid ObjectId)
+//     if (error.name === "CastError") {
+//       return res.status(400).json({ 
+//         message: `Invalid ${error.path}: ${error.value}` 
+//       });
+//     }
+
+//     // Fallback for unexpected server errors
+//     res.status(500).json({ 
+//       message: "Server error while creating campaign.",
+//       error: error.message,
+//       details: error.stack
+//     });
+//   }
+// };
+
+
+// Create Campaign
 export const createCampaign = async (req, res) => {
   try {
-    console.log("Creating campaign with data:", req.body);
+    // Validate required fields
+    const requiredFields = ['name', 'startDate', 'endDate', 'selectedBoards', 'clientEmail', 'clientName', 'serviceManEmail', 'city'];
+    const missingFields = requiredFields.filter(field => !req.body[field]);
     
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        message: `Missing required fields: ${missingFields.join(', ')}`
+      });
+    }
+
     // Validate selectedBoards are valid ObjectIds
     if (req.body.selectedBoards && Array.isArray(req.body.selectedBoards)) {
       for (const boardId of req.body.selectedBoards) {
         if (!mongoose.Types.ObjectId.isValid(boardId)) {
-          return res.status(400).json({ 
-            message: `Invalid board ID: ${boardId}` 
+          return res.status(400).json({
+            message: `Invalid board ID: ${boardId}`
           });
         }
       }
     }
-    
+
     if (req.body.serviceManEmail && !Array.isArray(req.body.serviceManEmail)) {
       req.body.serviceManEmail = [req.body.serviceManEmail];
     }
 
-    const campaign = new Campaign(req.body);
+    // Extract only the fields we need from req.body
+    const campaignData = {
+      name: req.body.name,
+      startDate: req.body.startDate,
+      endDate: req.body.endDate,
+      noOfBoards: req.body.noOfBoards,
+      selectedBoards: req.body.selectedBoards,
+      clientEmail: req.body.clientEmail,
+      clientName: req.body.clientName,
+      serviceManEmail: req.body.serviceManEmail,
+      city: req.body.city
+    };
+
+    const campaign = new Campaign(campaignData);
     console.log("Campaign object created:", campaign);
-    
+
     await campaign.save();
     console.log("Campaign saved successfully");
-    
+
     await campaign.populate("selectedBoards");
     console.log("Campaign populated with boards");
 
@@ -39,11 +146,17 @@ export const createCampaign = async (req, res) => {
     console.error("Error name:", error.name);
     console.error("Error message:", error.message);
     console.error("Error stack:", error.stack);
-    
+
     // Handle Mongoose validation errors
     if (error.name === "ValidationError") {
+      console.log("Validation Error Details:", error);
+      console.log("Error fields:", Object.keys(error.errors));
       const messages = Object.values(error.errors).map((err) => err.message);
-      return res.status(400).json({ message: messages.join(", ") });
+      return res.status(400).json({
+        message: messages.join(", "),
+        fields: Object.keys(error.errors),
+        details: error.errors
+      });
     }
 
     // Handle duplicate key errors
@@ -54,21 +167,19 @@ export const createCampaign = async (req, res) => {
 
     // Handle cast errors (invalid ObjectId)
     if (error.name === "CastError") {
-      return res.status(400).json({ 
-        message: `Invalid ${error.path}: ${error.value}` 
+      return res.status(400).json({
+        message: `Invalid ${error.path}: ${error.value}`
       });
     }
 
     // Fallback for unexpected server errors
-    res.status(500).json({ 
+    res.status(500).json({
       message: "Server error while creating campaign.",
       error: error.message,
       details: error.stack
     });
   }
 };
-
-
 
 
 // ✅ Get All Campaigns
