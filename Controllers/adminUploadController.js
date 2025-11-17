@@ -25,26 +25,8 @@ export const uploadCampaignImage = async (req, res) => {
 
     if (!campaignId) {
       return res.status(400).json({ 
-        success: false, 
+        success: false,
         message: "Campaign ID is required" 
-      });
-    }
-
-    // Validate file type
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    if (!allowedTypes.includes(req.file.mimetype)) {
-      return res.status(400).json({ 
-        success: false,
-        message: "Invalid file type. Only JPEG and PNG images are allowed" 
-      });
-    }
-
-    // Validate file size (5MB)
-    const maxSize = 5 * 1024 * 1024;
-    if (req.file.size > maxSize) {
-      return res.status(400).json({ 
-        success: false,
-        message: "File too large. Maximum size is 5MB" 
       });
     }
 
@@ -57,27 +39,26 @@ export const uploadCampaignImage = async (req, res) => {
       });
     }
 
-    // Upload to cloudinary
-    const uploadResult = await cloudinary.uploader.upload(req.file.path, {
-      folder: 'campaign-images',
-      resource_type: 'auto',
-    });
-
-    if (!uploadResult || !uploadResult.secure_url) {
+    // Get Cloudinary URL from middleware
+    const cloudinaryUrl = req.file.cloudinaryUrl;
+    if (!cloudinaryUrl) {
       return res.status(500).json({
         success: false,
         message: "Failed to upload image to cloud storage"
       });
     }
 
-    // Create new admin upload record
+    // Create new admin upload record with correct field names
     const newUpload = new PicByAdmin({
       campaign: campaignId,
-      adminEmail: adminEmail,
-      imageUrl: uploadResult.secure_url,
-      location: location || city || '',
-      coordinates: latitude && longitude ? { lat: latitude, lng: longitude } : null,
-      uploadedAt: new Date()
+      campaignName: campaign.title || campaign.name || 'Unknown Campaign',
+      uploadedBy: adminEmail,
+      role: 'admin',
+      location: location || 'Unknown',
+      city: city || campaign.city || 'Unknown',
+      latitude: parseFloat(latitude || 0),
+      longitude: parseFloat(longitude || 0),
+      imageUrl: cloudinaryUrl
     });
 
     await newUpload.save();
@@ -89,8 +70,7 @@ export const uploadCampaignImage = async (req, res) => {
         _id: newUpload._id,
         imageUrl: newUpload.imageUrl,
         location: newUpload.location,
-        coordinates: newUpload.coordinates,
-        uploadedAt: newUpload.uploadedAt
+        uploadedDate: newUpload.uploadDate
       }
     });
 
