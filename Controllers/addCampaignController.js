@@ -94,8 +94,14 @@ import UserModel from "../Database/userModel.js";
 export const createCampaign = async (req, res) => {
   try {
     // Validate required fields
-    const requiredFields = ['name', 'startDate', 'endDate', 'selectedBoards', 'clientEmail', 'clientName', 'serviceManEmail', 'city'];
+    const requiredFields = ['name', 'startDate', 'endDate', 'selectedBoards', 'clientEmail', 'clientName', 'serviceManEmail'];
     const missingFields = requiredFields.filter(field => !req.body[field]);
+    
+    // Check for at least one city (either 'city' or 'cities')
+    const hasCity = req.body.city || (Array.isArray(req.body.cities) && req.body.cities.length > 0);
+    if (!hasCity) {
+      missingFields.push('city or cities');
+    }
     
     if (missingFields.length > 0) {
       return res.status(400).json({
@@ -118,6 +124,14 @@ export const createCampaign = async (req, res) => {
       req.body.serviceManEmail = [req.body.serviceManEmail];
     }
 
+    // Handle cities - support both 'city' (string) and 'cities' (array)
+    let cities = [];
+    if (Array.isArray(req.body.cities) && req.body.cities.length > 0) {
+      cities = req.body.cities;
+    } else if (req.body.city) {
+      cities = [req.body.city];
+    }
+
     // Extract only the fields we need from req.body
     const campaignData = {
       name: req.body.name,
@@ -128,7 +142,8 @@ export const createCampaign = async (req, res) => {
       clientEmail: req.body.clientEmail,
       clientName: req.body.clientName,
       serviceManEmail: req.body.serviceManEmail,
-      city: req.body.city
+      cities: cities,
+      city: cities[0] || '' // Keep first city for backward compatibility
     };
 
     const campaign = new Campaign(campaignData);
@@ -206,6 +221,20 @@ export const getCampaignById = async (req, res) => {
 // ✅ Update Campaign
 export const updateCampaign = async (req, res) => {
   try {
+    // Handle cities - support both 'city' (string) and 'cities' (array)
+    if (req.body.cities || req.body.city) {
+      let cities = [];
+      if (Array.isArray(req.body.cities) && req.body.cities.length > 0) {
+        cities = req.body.cities;
+      } else if (req.body.city) {
+        cities = [req.body.city];
+      }
+      
+      // Update both fields for consistency
+      req.body.cities = cities;
+      req.body.city = cities[0] || '';
+    }
+
     const campaign = await Campaign.findByIdAndUpdate(
       req.params.id,
       req.body,
@@ -301,8 +330,7 @@ export const getServiceManByCity = async (req, res) => {
   try {
     const { city } = req.params;
     const servicemen = await UserModel.find({ city: city, role: "serviceman" }).select("-password");
-    if (servicemen.length === 0)
-      return res.status(404).json({ message: "No service men found in this city" });
+    // Return empty array instead of 404 - this is valid (no service men in this city)
     res.status(200).json(servicemen);
   } catch (error) {
     res.status(500).json({ message: error.message });

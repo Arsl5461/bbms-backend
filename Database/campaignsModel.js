@@ -25,7 +25,12 @@ const campaignSchema = new mongoose.Schema(
     },
     city: {
       type: String,
-      required: true
+      required: false
+    },
+    cities: {
+      type: [String],
+      required: false,
+      default: []
     },
     startDate: {
       type: Date,
