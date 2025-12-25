@@ -13,7 +13,7 @@ import cors from "cors";
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174','https://bmsc.vercel.app'],
+  origin: true,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -59,11 +59,5 @@ connectDB()
     console.error('❌ Failed to start server:', error);
     process.exit(1);
   });
-
-connectDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`✅ Server running on http://localhost:${PORT}`);
-  });
-});
 
 
