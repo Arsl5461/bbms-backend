@@ -8,8 +8,13 @@ const BoardsSchema = new mongoose.Schema({
   },
   Type: {
     type: String,
-    enum: ['backlit', 'frontlit'],
+    enum: ['backlit', 'frontlit', 'creative', 'digital stream', 'screen digital', 'mall digital screen'],
     required: true
+  },
+  Quantity: {
+    type: Number,
+    required: false,
+    default: null
   },
   Location: {
     type: String,

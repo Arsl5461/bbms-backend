@@ -5,7 +5,7 @@ import cloudinary from '../config/cloudinary.js';
 
 export const uploadCampaignImage = async (req, res) => {
   try {
-    const { campaignId, location, city, latitude, longitude } = req.body;
+    const { campaignId, location, city, latitude, longitude, boardId, boardDetails } = req.body;
     const adminEmail = req.user?.email;
 
     // Validate request
@@ -58,7 +58,9 @@ export const uploadCampaignImage = async (req, res) => {
       city: city || campaign.city || 'Unknown',
       latitude: parseFloat(latitude || 0),
       longitude: parseFloat(longitude || 0),
-      imageUrl: cloudinaryUrl
+      imageUrl: cloudinaryUrl,
+      boardId: boardId || null,
+      boardDetails: boardDetails || ''
     });
 
     await newUpload.save();
@@ -107,7 +109,9 @@ export const getCampaignImages = async (req, res) => {
     console.log('Fetching images for campaign:', campaignId);
 
     // Get admin uploads
-    const adminUploads = await PicByAdmin.find({ campaign: campaignId }).lean();
+    const adminUploads = await PicByAdmin.find({ campaign: campaignId })
+      .populate('boardId') // Populate board details
+      .lean();
     console.log('Found admin uploads:', adminUploads.length);
 
     // Get serviceman uploads
@@ -122,7 +126,11 @@ export const getCampaignImages = async (req, res) => {
       role: 'admin',
       uploadedBy: upload.adminEmail || 'Admin',
       location: upload.location || '',
-      coordinates: upload.coordinates || null
+      coordinates: upload.coordinates || null,
+      boardId: upload.boardId?._id || null, // Keep ID string
+      boardDetails: upload.boardDetails || '',
+      boardQuantity: upload.boardId?.Quantity || null,
+      boardType: upload.boardId?.Type || null
     }));
 
     // Transform serviceman uploads

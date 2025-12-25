@@ -45,6 +45,15 @@ const picByAdminSchema = new mongoose.Schema(
       ref: 'Campaign',
       required: true,
     },
+    boardId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Board',
+      required: false,
+    },
+    boardDetails: {
+      type: String, // e.g. "Board 123 - Gulberg"
+      required: false,
+    },
     uploadDate: {
       type: Date,
       default: Date.now,
