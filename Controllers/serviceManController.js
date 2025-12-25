@@ -262,7 +262,7 @@ export const uploadServiceManPic = async (req, res) => {
       dateTime,
     } = req.body;
 
-    console.log("Request body:", req.body);
+    
 
     // --- Enhanced Validation ---
     if (!req.file) {
@@ -270,7 +270,7 @@ export const uploadServiceManPic = async (req, res) => {
       return res.status(400).json({ message: "Image is required." });
     }
 
-    console.log("File received:", req.file);
+    
 
     const requiredFields = {
       campaignName,
@@ -295,16 +295,16 @@ export const uploadServiceManPic = async (req, res) => {
       return res.status(500).json({ message: "Image upload failed, no Cloudinary URL found." });
     }
 
-    console.log("Cloudinary URL:", cloudinaryUrl);
+    
 
     // --- Database Operations ---
-    console.log(`Finding campaign: '${campaignName}'`);
+    
     const campaign = await Campaign.findOne({ name: campaignName });
     if (!campaign) {
       console.warn(`Campaign '${campaignName}' not found.`);
       // Decide if this is an error or not. For now, we'll allow it and set campaign to null.
     } else {
-      console.log("Campaign found:", campaign._id);
+      
     }
 
     const newEntry = new PicByServiceMan({
@@ -322,11 +322,11 @@ export const uploadServiceManPic = async (req, res) => {
 
     console.log("Saving new report to database...");
     await newEntry.save();
-    console.log("Report saved successfully:", newEntry._id);
+    
 
     // --- Create Verification Records ---
     if (campaign && Array.isArray(campaign.selectedBoards) && campaign.selectedBoards.length > 0) {
-      console.log(`Creating ${campaign.selectedBoards.length} verification records...`);
+      
       for (const boardId of campaign.selectedBoards) {
         const verification = new VerificationModel({
           campaign: campaign._id,

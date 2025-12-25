@@ -16,7 +16,7 @@ export const getVerifiedCampaignsForClient = async (req, res) => {
       clientEmail: email 
     }).populate('selectedBoards');
 
-    console.log('Found campaigns:', clientCampaigns);
+    
 
     if (!clientCampaigns.length) {
       return res.status(200).json({ 
@@ -46,7 +46,7 @@ export const getVerifiedCampaignsForClient = async (req, res) => {
       };
     });
 
-    console.log('Campaigns with verification:', campaignsWithVerification);
+    
     res.status(200).json({ 
       message: "Campaigns retrieved successfully",
       data: campaignsWithVerification 

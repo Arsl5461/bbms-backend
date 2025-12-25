@@ -147,13 +147,13 @@ export const createCampaign = async (req, res) => {
     };
 
     const campaign = new Campaign(campaignData);
-    console.log("Campaign object created:", campaign);
+    
 
     await campaign.save();
-    console.log("Campaign saved successfully");
+    
 
     await campaign.populate("selectedBoards");
-    console.log("Campaign populated with boards");
+    
 
     res.status(201).json(campaign);
   } catch (error) {
@@ -164,8 +164,7 @@ export const createCampaign = async (req, res) => {
 
     // Handle Mongoose validation errors
     if (error.name === "ValidationError") {
-      console.log("Validation Error Details:", error);
-      console.log("Error fields:", Object.keys(error.errors));
+      
       const messages = Object.values(error.errors).map((err) => err.message);
       return res.status(400).json({
         message: messages.join(", "),

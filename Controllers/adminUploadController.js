@@ -106,17 +106,17 @@ export const getCampaignImages = async (req, res) => {
       });
     }
 
-    console.log('Fetching images for campaign:', campaignId);
+    
 
     // Get admin uploads
     const adminUploads = await PicByAdmin.find({ campaign: campaignId })
       .populate('boardId') // Populate board details
       .lean();
-    console.log('Found admin uploads:', adminUploads.length);
+    
 
     // Get serviceman uploads
     const servicemanUploads = await PicByServiceMan.find({ campaign: campaignId }).lean();
-    console.log('Found serviceman uploads:', servicemanUploads.length);
+   
 
     // Transform admin uploads
     const processedAdminUploads = adminUploads.map(upload => ({
@@ -149,7 +149,7 @@ export const getCampaignImages = async (req, res) => {
       .filter(img => img.imageUrl) // Only include images with valid URLs
       .sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
 
-    console.log('Total processed images:', allImages.length);
+    
 
     return res.status(200).json({
       success: true,
@@ -204,7 +204,7 @@ export const deleteCampaignImage = async (req, res) => {
         const publicId = urlParts[urlParts.length - 1].split('.')[0];
         
         await cloudinary.uploader.destroy(publicId);
-        console.log('Deleted from Cloudinary:', publicId);
+        
       } catch (cloudinaryError) {
         console.error('Error deleting from Cloudinary:', cloudinaryError);
         // Continue with response even if Cloudinary delete fails

@@ -86,8 +86,7 @@ export const adminVerifyUploadById = async (req, res) => {
   const { uploadId } = req.params;
 
   try {
-    console.log(`Verifying upload with ID: ${uploadId}`);
-    
+        
     // Find the upload
     const upload = await PicByServiceMan.findById(uploadId);
     if (!upload) {
@@ -125,7 +124,7 @@ export const adminVerifyUploadById = async (req, res) => {
     }
 
     await verification.save();
-    console.log(`Verification record created/updated for upload: ${upload._id}`);
+
 
     res.status(200).json({
       message: "✅ Upload verified successfully",

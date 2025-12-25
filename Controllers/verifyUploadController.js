@@ -80,7 +80,7 @@ export const adminVerifyUploadById = async (req, res) => {
   const { uploadId } = req.params;
 
   try {
-    console.log(`Verifying upload with ID: ${uploadId}`);
+    
     
     // Find the upload
     const upload = await PicByServiceMan.findById(uploadId).populate('campaign');
@@ -88,13 +88,12 @@ export const adminVerifyUploadById = async (req, res) => {
       console.error(`Upload not found with ID: ${uploadId}`);
       return res.status(404).json({ message: "Upload not found" });
     }
-    
-    console.log(`Found upload: ${upload._id}, campaign: ${upload.campaignName}`);
+ 
 
     // Update the upload's isVerified status directly
     upload.isVerified = true;
     await upload.save();
-    console.log(`Updated upload isVerified status to true`);
+  
 
     // Find the verification record and update its status if it exists
     const verification = await VerificationModel.findOne({ serviceManUpload: uploadId });
@@ -121,7 +120,7 @@ export const adminVerifyUploadById = async (req, res) => {
             verifiedAt: new Date()
           });
           await newVerification.save();
-          console.log(`Created new verification record for upload ${uploadId}`);
+          
         }
       }
     }

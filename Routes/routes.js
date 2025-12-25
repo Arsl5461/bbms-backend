@@ -104,7 +104,9 @@ router.get("/admin/campaign-images/:campaignId", verifyToken, getCampaignImages)
 router.delete("/admin/campaign-images/:imageId", verifyToken, deleteCampaignImage);
 
 router.put('/admin/verify-upload/:uploadId', verifyToken, adminVerifyUploadById);
-router.get("/admin-get-uploads", verifyToken, adminGetAllUploads);
-router.get("/admin-get-uploads/serviceman/:email", verifyToken, adminGetUploadsByServicemanEmail);
+import { sendReport } from '../Controllers/emailController.js';
+import reportUploadMiddleware from '../Middlewares/reportUploadMiddleware.js';
+
+router.post("/send-report", verifyToken, reportUploadMiddleware, sendReport);
 
 export default router;
